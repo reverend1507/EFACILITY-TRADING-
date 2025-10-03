@@ -2,328 +2,310 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>EFACILITY TRADING</title>
+<title>Efacility Trading Portal</title>
 <style>
-body{margin:0;font-family:Arial,sans-serif;background:#FFF9C4;color:#000}
-header{background:#000;color:#FFF9C4;padding:15px;text-align:center}
-h1,h2,h3{margin:10px 0}
-.container{padding:20px;max-width:900px;margin:auto}
-.hidden{display:none}
-button{background:#000;color:#FFF9C4;border:none;padding:10px 20px;margin:5px;border-radius:5px;cursor:pointer}
-button:hover{background:#333}
-input,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:5px}
-.exam-question{margin-bottom:15px}
-table{width:100%;border-collapse:collapse;margin-top:10px}
-th,td{border:1px solid #000;padding:8px;text-align:left}
-th{background:#000;color:#FFF9C4}
+body { font-family: Arial,sans-serif; background:#fef9e7; color:#000; margin:0; padding:0; }
+header { background:#000; color:#fef9e7; padding:15px; text-align:center; font-size:20px; font-weight:bold; }
+section { display:none; padding:20px; }
+button { background:#000; color:#fef9e7; border:none; padding:10px 20px; margin:5px; cursor:pointer; }
+button:hover { background:#444; }
+input, select { padding:8px; margin:5px 0; width:100%; }
+.warning { color:red; font-weight:bold; }
+.student-card { border:1px solid #ccc; padding:10px; margin:10px; background:#fff; }
+img.screenshot { width:100%; max-width:400px; }
+#progressBar { width:100%; background:#ccc; margin-bottom:10px; height:20px; border-radius:10px; overflow:hidden; }
+#progress { width:0%; height:100%; background:#000; transition:width 0.3s; }
 </style>
-<script src="https://js.paystack.co/v1/inline.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-<header>
-<h1>EFACILITY TRADING</h1>
-<p>Learn Forex, Crypto, Stocks, Indices - 3-Month Training</p>
-</header>
+<header>Efacility Trading Institution</header>
 
-<div class="container">
+<section id="landing" style="display:block;">
+<h2>Welcome to Efacility Trading📊</h2>
+<p>3 months intensive training on Forex, Crypto, Stocks, and Indices.</p>
+<button onclick="showSection('register')">Register & Start Exam</button>
+<button onclick="showSection('adminLogin')">Admin Login</button>
+<button onclick="showSection('studentLogin')">Student Login</button>
+</section>
 
-<!-- Student Form -->
-<div id="application">
-<h2>Student Application Form</h2>
-<form id="appForm">
-<input type="text" id="fullname" placeholder="Full Name" required>
-<input type="date" id="dob" required>
-<input type="text" id="nin" placeholder="National ID Number" required>
-<input type="email" id="email" placeholder="Email" required>
-<input type="tel" id="phone" placeholder="Phone Number" required>
-<input type="text" id="country" placeholder="Country" required>
-<input type="text" id="state" placeholder="State of Origin" required>
-<input type="text" id="address" placeholder="Address" required>
-<select id="disability" required>
-<option value="">Select Disability Status</option>
-<option value="none">None</option>
-<option value="disabled">Yes</option>
-</select>
-<select id="health" required>
-<option value="">Health Issues?</option>
-<option value="none">None</option>
-<option value="bp">High Blood Pressure</option>
-<option value="heart">Heart Disease</option>
-<option value="lungs">Lungs Disease</option>
-</select>
-<select id="course" required>
+<section id="register">
+<h2>Registration Form</h2>
+<form id="regForm">
+<input placeholder="Full Name" required><br>
+<input placeholder="Date of Birth" required><br>
+<input placeholder="National ID Number" required><br>
+<input type="email" placeholder="Email" required><br>
+<input type="password" placeholder="Password" required><br>
+<input placeholder="Phone" required><br>
+<input placeholder="Country" required><br>
+<input placeholder="State of Origin" required><br>
+<input placeholder="Address" required><br>
+<select required>
 <option value="">Select Course</option>
-<option value="forex">Forex</option>
-<option value="crypto">Crypto</option>
-<option value="stocks">Stocks</option>
-<option value="indices">Indices</option>
-</select>
-<label><input type="checkbox" id="accept" required> I accept to learn for 3 months</label><br>
+<option>Forex</option>
+<option>Crypto</option>
+<option>Stocks</option>
+<option>Indices</option>
+</select><br>
 <button type="submit">Submit & Start Exam</button>
+<button type="button" onclick="goBack('landing')">Back</button>
 </form>
-</div>
+</section>
 
-<!-- Exam -->
-<div id="exam" class="hidden">
-<h2>Entrance Exam (20 Questions)</h2>
-<form id="examForm"></form>
-<button id="submitExamBtn">Submit Exam</button>
-<p id="scoreText"></p>
-</div>
+<section id="exam">
+<h2>Admission Exam</h2>
+<p class="warning">⚠ Once you start, you have 10 minutes. Answers cannot be changed.</p>
+<div id="progressBar"><div id="progress"></div></div>
+<div id="examQuestions"></div>
+<p id="timer"></p>
+<button onclick="submitExam()">Submit Exam</button>
+<button onclick="goBack('register')">Back</button>
+</section>
 
-<!-- Student Dashboard -->
-<div id="dashboard" class="hidden">
-<h2>Welcome <span id="studentName"></span></h2>
-<p>Course: <span id="courseName"></span></p>
-<p>ePin: <span id="epinDisplay">--</span></p>
-<p>Tuition Status: <span id="tuitionStatus">Pending</span></p>
-<h3>Select Tuition Payment</h3>
-<select id="tuitionType">
-<option value="full">Full Payment $120</option>
-<option value="monthly">Monthly Payment $40</option>
-</select>
-<button id="payBtn">Pay Tuition</button>
-<div class="whatsapp-links">
-<h3>WhatsApp Group Link:</h3>
-<a id="groupLink" href="#" target="_blank">Join Group</a>
-</div>
-<p>Other payments? Contact: <strong>08038684515</strong></p>
-</div>
+<section id="payment">
+<h2>Payment Page</h2>
+<p>Grand Total: $<span id="grandTotal">0</span></p>
+<p>Select full tuition amount:</p>
+<button onclick="selectFull()">+ Full Payment</button>
+<p>Pay using Paystack:</p>
+<a id="payLink" href="https://paystack.com/buy/efacility-trading-mdxbai" target="_blank"><button>Pay Now</button></a>
 
-<!-- Admin login -->
-<div id="adminLogin">
-<h2>Administrator Login</h2>
-<input type="email" id="adminEmail" placeholder="Email">
-<input type="password" id="adminPass" placeholder="Password">
-<button id="adminLoginBtn">Login</button>
-<p id="adminMsg"></p>
-</div>
+<p>Upload payment screenshot:</p>
+<input type="file" id="paymentScreenshot" accept="image/*" onchange="previewScreenshot(event)">
+<img id="screenshotPreview" class="screenshot" style="display:none;"/>
 
-<!-- Admin Panel -->
-<div id="adminPanel" class="hidden">
+<button onclick="confirmPayment()">Confirm Payment</button>
+<button onclick="goBack('exam')">Back</button>
+</section>
+
+<section id="portal">
+<h2>Student Portal</h2>
+<p><b>Name:</b> <span id="pName"></span></p>
+<p><b>Email:</b> <span id="pEmail"></span></p>
+<p><b>Course:</b> <span id="pCourse"></span></p>
+<p><b>E-PIN:</b> <span id="pEpin"></span></p>
+<p><b>WhatsApp Group:</b> <a id="pLink" target="_blank">Join Group</a></p>
+<p><b>Countdown:</b> <span id="countdown"></span></p>
+<p><b>Uploaded Payment Screenshot:</b><br><img id="pScreenshot" class="screenshot" /></p>
+<button onclick="goBack('landing')">Back</button>
+</section>
+
+<section id="studentLogin">
+<h2>Student Login</h2>
+<input type="email" id="stuEmail" placeholder="Email"><br>
+<input type="password" id="stuPass" placeholder="Password"><br>
+<button onclick="studentLogin()">Login</button>
+<button onclick="goBack('landing')">Back</button>
+</section>
+
+<section id="adminLogin">
+<h2>Admin Login</h2>
+<input type="email" id="adminEmail" placeholder="Email"><br>
+<input type="password" id="adminPass" placeholder="Password"><br>
+<button onclick="adminLogin()">Login</button>
+<button onclick="goBack('landing')">Back</button>
+</section>
+
+<section id="adminPanel">
 <h2>Admin Panel</h2>
-<label>Filter by Course:
-<select id="courseFilter">
-<option value="all">All</option>
-<option value="forex">Forex</option>
-<option value="crypto">Crypto</option>
-<option value="stocks">Stocks</option>
-<option value="indices">Indices</option>
-</select>
-</label>
-<label>Filter by Admission:
-<select id="admissionFilter">
-<option value="all">All</option>
-<option value="pending">Pending</option>
-<option value="granted">Granted</option>
-</select>
-</label>
-<table id="studentTable">
-<tr>
-<th>Name</th><th>Course</th><th>Admission</th><th>Tuition</th><th>ePin</th><th>WhatsApp</th><th>Actions</th>
-</tr>
-</table>
-</div>
+<div id="studentList"></div>
+<p>Replace Payment Method URL: 
+<input id="newPay" placeholder="Enter new link">
+<button onclick="updatePayLink()">Update</button>
+</p>
+<button onclick="goBack('landing')">Back</button>
+</section>
 
 <script>
-// Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyDu4QJFLBHU2PSNiPIKpncPPZPM4p2-76U",
-  authDomain: "efacility-trading.firebaseapp.com",
-  projectId: "efacility-trading",
-  storageBucket: "efacility-trading.firebasestorage.app",
-  messagingSenderId: "983620967589",
-  appId: "1:983620967589:web:bfdeab74d8d7f61516414c",
-  measurementId: "G-VGTCJZ2JH4"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
+let students = [];
 let currentStudent = null;
-const adminCredentials = {email:"ebubechichukwu8@gmail.com", password:"Ebube@123"};
-const groupLinks = {
-  forex:"https://chat.whatsapp.com/EMxixrh4dQd5aDe3aaZ1Yx",
-  crypto:"https://chat.whatsapp.com/BbJiiGSvWwMACQLaBqn1lY",
-  stocks:"https://chat.whatsapp.com/JW6QD4pBxos1QlNcq8J4jG",
-  indices:"https://chat.whatsapp.com/E7i5ulbaDOK1HCCmx1jF4O"
+let epinCounter = 1;
+let timerInterval;
+let payLink="https://paystack.com/buy/efacility-trading-mdxbai";
+let grandTotal=0;
+
+const courseLinks = {
+"Forex":"https://chat.whatsapp.com/EMxixrh4dQd5aDe3aaZ1Yx",
+"Crypto":"https://chat.whatsapp.com/BbJiiGSvWwMACQLaBqn1lY",
+"Stocks":"https://chat.whatsapp.com/JW6QD4pBxos1QlNcq8J4jG",
+"Indices":"https://chat.whatsapp.com/E7i5ulbaDOK1HCCmx1jF4O"
 };
 
-// Example 20 questions
-const questions=[
-  {q:"What is marketing?", opts:{a:"Selling",b:"Advertising",c:"Creating value",d:"None"}, ans:"c"},
-  {q:"Profit is?", opts:{a:"Revenue-Cost",b:"Cost-Revenue",c:"Revenue*Cost",d:"Revenue"}, ans:"a"},
-  {q:"Investment means?", opts:{a:"Saving",b:"Spending",c:"Buying assets",d:"Borrowing"}, ans:"c"},
-  {q:"Branding is?", opts:{a:"Logo only",b:"Identity & value",c:"Price",d:"Quality"}, ans:"b"},
-  {q:"Customer loyalty?", opts:{a:"Repeat purchase",b:"Random buying",c:"Free stuff",d:"Discount only"}, ans:"a"},
-  {q:"Market research?", opts:{a:"Guessing",b:"Survey & analysis",c:"Advertising",d:"Selling"}, ans:"b"},
-  {q:"Revenue is?", opts:{a:"Cost+Profit",b:"Selling price",c:"Income",d:"All"}, ans:"c"},
-  {q:"Business plan?", opts:{a:"Strategy document",b:"Invoice",c:"Report",d:"None"}, ans:"a"},
-  {q:"ROI means?", opts:{a:"Return on Investment",b:"Rate of Income",c:"Revenue on Item",d:"Ratio"}, ans:"a"},
-  {q:"Marketing mix?", opts:{a:"4P's",b:"3C's",c:"5S",d:"7M"}, ans:"a"},
-  {q:"Supply & Demand?", opts:{a:"Forces",b:"Government",c:"Price control",d:"Cost"}, ans:"a"},
-  {q:"Segmentation?", opts:{a:"Dividing market",b:"Merging",c:"Pricing",d:"Advertising"}, ans:"a"},
-  {q:"Target audience?", opts:{a:"Everyone",b:"Specific group",c:"Random",d:"None"}, ans:"b"},
-  {q:"Entrepreneur?", opts:{a:"Employee",b:"Business owner",c:"Investor",d:"Customer"}, ans:"b"},
-  {q:"Cash flow?", opts:{a:"Money in/out",b:"Profit only",c:"Expenses only",d:"Revenue"}, ans:"a"},
-  {q:"Break-even?", opts:{a:"Loss point",b:"Profit point",c:"Revenue=Cost",d:"None"}, ans:"c"},
-  {q:"Pricing strategy?", opts:{a:"Fixed",b:"Dynamic",c:"Both",d:"None"}, ans:"c"},
-  {q:"Advertising?", opts:{a:"Selling",b:"Promotion",c:"Tax",d:"Profit"}, ans:"b"},
-  {q:"E-commerce?", opts:{a:"Online trade",b:"Retail",c:"Offline sales",d:"Logistics"}, ans:"a"},
-  {q:"Stakeholders?", opts:{a:"Investors only",b:"Employees only",c:"All parties",d:"Customers only"}, ans:"c"}
+const questions = [
+  {q:"What is marketing?", a:"A", opts:["A. Promoting products","B. Banking","C. Fishing","D. Singing"]},
+  {q:"Define business.", a:"B", opts:["A. Sleeping","B. Selling goods/services","C. Running","D. Cooking"]},
+  {q:"What is profit?", a:"C", opts:["A. Loss","B. Tax","C. Revenue - Cost","D. Gift"]},
+  {q:"Explain branding.", a:"D", opts:["A. Marketing strategy","B. Price","C. Cost","D. Identity & image"]},
+  {q:"What is forex?", a:"A", opts:["A. Currency trading","B. Stocks","C. Crypto","D. Insurance"]},
+  {q:"Define crypto.", a:"B", opts:["A. Gold","B. Digital currency","C. Bonds","D. Savings"]},
+  {q:"What is stock?", a:"C", opts:["A. Market","B. Crypto","C. Share in company","D. Currency"]},
+  {q:"Explain market demand.", a:"D", opts:["A. Supply","B. Profit","C. Loss","D. Customer desire"]},
+  {q:"What is supply?", a:"A", opts:["A. Quantity available","B. Price","C. Loss","D. Marketing"]},
+  {q:"Define sales.", a:"B", opts:["A. Tax","B. Selling products/services","C. Loss","D. Assets"]},
+  {q:"What is advertising?", a:"C", opts:["A. Tax","B. Savings","C. Promotion","D. Loss"]},
+  {q:"Explain competition.", a:"D", opts:["A. Supply","B. Tax","C. Advertisement","D. Rivalry"]},
+  {q:"Define consumer.", a:"A", opts:["A. Buyer","B. Seller","C. Bank","D. Employee"]},
+  {q:"What is investment?", a:"B", opts:["A. Spending","B. Using money to earn","C. Borrowing","D. Selling"]},
+  {q:"What is trading?", a:"C", opts:["A. Sleeping","B. Saving","C. Buying & Selling","D. Watching"]},
+  {q:"What is risk?", a:"D", opts:["A. Gain","B. Asset","C. Market","D. Possibility of loss"]},
+  {q:"Define assets.", a:"A", opts:["A. Owned value","B. Liability","C. Debt","D. Loss"]},
+  {q:"Define liabilities.", a:"B", opts:["A. Profit","B. Debt","C. Asset","D. Cash"]},
+  {q:"What is ROI?", a:"C", opts:["A. Loss","B. Asset","C. Return on Investment","D. Tax"]},
+  {q:"What is entrepreneurship?", a:"D", opts:["A. Employment","B. Salary","C. Banking","D. Business creation"]}
 ];
 
-window.onload=function(){
+function showSection(id){document.querySelectorAll("section").forEach(s=>s.style.display="none");document.getElementById(id).style.display="block";}
 
-// --- Student Form Submit ---
-document.getElementById('appForm').addEventListener('submit', async e=>{
+document.getElementById("regForm").onsubmit=e=>{
   e.preventDefault();
-  const fullname=document.getElementById('fullname').value;
-  const dob=document.getElementById('dob').value;
-  const nin=document.getElementById('nin').value;
-  const email=document.getElementById('email').value;
-  const phone=document.getElementById('phone').value;
-  const country=document.getElementById('country').value;
-  const state=document.getElementById('state').value;const address=document.getElementById('address').value;
-  const disability=document.getElementById('disability').value;
-  const health=document.getElementById('health').value;
-  const course=document.getElementById('course').value;
-  const accept=document.getElementById('accept').checked;
-  if(!accept){alert('You must accept 3 months training'); return;}
+  const vals = Array.from(e.target.elements).map(i=>i.value).filter(v=>v);
+  currentStudent={id:students.length+1,name:vals[0],email:vals[3],password:vals[4],phone:vals[5],course:vals[9],status:"ExamPending",epin:"",proof:"",link:"",active:false,completed:0};
+  showExam();
+};
 
-  try{
-    const studentsSnap=await db.collection('students').get();
-    const ePinNum=(studentsSnap.size +1).toString().padStart(4,'0');
-    const docRef=await db.collection('students').add({
-      fullname,dob,nin,email,phone,country,state,address,disability,health,course,
-      examPassed:false,tuitionPaid:false,admissionGranted:false,epin:`EX${ePinNum}TR2025`
-    });
-    currentStudent=docRef.id;
-    document.getElementById('application').classList.add('hidden');
-    document.getElementById('exam').classList.remove('hidden');
-    loadExam();
-    window.scrollTo(0,0);
-  }catch(err){alert(err.message);}
-});
-
-// --- Load Exam ---
-function loadExam(){
-  const examForm=document.getElementById('examForm');
-  examForm.innerHTML='';
-  questions.forEach((item,i)=>{
-    const div=document.createElement('div');
-    div.className='exam-question';
-    div.innerHTML=`<p>${i+1}. ${item.q}</p>`+
-      Object.keys(item.opts).map(k=>`<label><input type="radio" name="q${i}" value="${k}"> ${item.opts[k]}</label>`).join('<br>');
-    examForm.appendChild(div);
-  });
-}
-
-// --- Submit Exam ---
-document.getElementById('submitExamBtn').addEventListener('click', async ()=>{
-  let score=0;
+function showExam(){
+  showSection("exam");
+  let qDiv=document.getElementById("examQuestions"); qDiv.innerHTML="";
   questions.forEach((q,i)=>{
-    const ans=document.querySelector(`input[name="q${i}"]:checked`);
-    if(ans && ans.value===q.ans) score++;
+    qDiv.innerHTML+=`<div class="student-card">
+      <p><b>Question ${i+1}:</b> ${q.q}</p>
+      ${q.opts.map(o=>`<input type="radio" name="q${i}" value="${o[0]}" onclick="updateProgress()"> ${o}`).join("<br>")}
+    </div>`;
   });
-  const passed = score >= 8;
-  document.getElementById('scoreText').textContent=`You scored ${score}/20. ${passed?'Admission Granted!':'Admission Denied!'}`;
-  await db.collection('students').doc(currentStudent).update({ examPassed: passed, admissionGranted: passed });
-  if(passed){
-    document.getElementById('exam').classList.add('hidden');
-    showDashboard();
-  }
-});
-
-// --- Show Student Dashboard ---
-async function showDashboard(){
-  const doc=await db.collection('students').doc(currentStudent).get();
-  const data=doc.data();
-  document.getElementById('dashboard').classList.remove('hidden');
-  document.getElementById('studentName').textContent=data.fullname;
-  document.getElementById('courseName').textContent=data.course;
-  document.getElementById('epinDisplay').textContent=data.epin;
-  document.getElementById('tuitionStatus').textContent=data.tuitionPaid?'Paid':'Pending';
-  document.getElementById('groupLink').href=groupLinks[data.course];
+  updateProgress();
+  startTimer(10*60);
 }
 
-// --- Pay Tuition ---
-document.getElementById('payBtn').addEventListener('click', async ()=>{
-  const tuitionType=document.getElementById('tuitionType').value;
-  const doc=await db.collection('students').doc(currentStudent).get();
-  const student=doc.data();
-  const amount = tuitionType==='full'?12000:4000;
-  const handler = PaystackPop.setup({
-    key: 'pk_live_dcd7822423a68079dc1b51b8d531210c6d33d821',
-    email: student.email,
-    amount: amount,
-    currency: 'USD',
-    callback: async function(response){
-      await db.collection('students').doc(currentStudent).update({ tuitionPaid:true, tuitionType });
-      document.getElementById('tuitionStatus').textContent='Paid';
-      alert(`Payment successful!\nYour ePin: ${student.epin}\nWhatsApp link: ${groupLinks[student.course]}`);
-    },
-    onClose: function(){ alert('Payment cancelled'); }
+function updateProgress(){
+  let answered=0;
+  questions.forEach((q,i)=>{
+    if(document.querySelector(`input[name="q${i}"]:checked`)) answered++;
   });
-  handler.openIframe();
-});
+  let percent=(answered/questions.length)*100;
+  document.getElementById("progress").style.width=percent+"%";
+}
 
-// --- Admin Login ---
-document.getElementById('adminLoginBtn').addEventListener('click', ()=>{
-  const email=document.getElementById('adminEmail').value;
-  const pass=document.getElementById('adminPass').value;
-  if(email===adminCredentials.email && pass===adminCredentials.password){
-    showAdminPanel();
-    document.getElementById('adminLogin').classList.add('hidden');
-  }else{
-    document.getElementById('adminMsg').textContent='Invalid credentials';
+function startTimer(sec){
+  let time=sec;
+  timerInterval=setInterval(()=>{
+    let m=Math.floor(time/60), s=time%60;
+    document.getElementById("timer").innerText=`${m}m ${s}s left`;
+    if(time--<=0){clearInterval(timerInterval);submitExam();}
+  },1000);
+}
+
+function submitExam(){
+  clearInterval(timerInterval);
+  let score=0, completed=0;
+  for(let i=0;i<questions.length;i++){
+    let ans=document.querySelector(`input[name="q${i}"]:checked`);
+    if(ans){completed++; if(ans.value===questions[i].a) score++;}
   }
-});
+  currentStudent.completed=completed;
+  alert(`You completed ${completed} questions.\nScore: ${score}`);
+  let ansStr = questions.map((q,i)=>`${i+1}. Correct answer: ${q.a}`).join("\n");
+  alert("Correct Answers (10 sec display):\n"+ansStr);
+  if(score>=8){currentStudent.status="Admitted"; calculateGrandTotal(); showSection("payment");}
+  else{currentStudent.status="Rejected"; students.push(currentStudent); alert("Failed. Try again in 3 months."); showSection("landing");}
+}
 
-// --- Admin Panel ---
+function calculateGrandTotal(){grandTotal=40+5+3; document.getElementById("grandTotal").innerText=grandTotal;}
+
+function selectFull(){document.getElementById("grandTotal").innerText=grandTotal;}
+
+function previewScreenshot(event){
+  const file = event.target.files[0];
+  if(file){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      document.getElementById("screenshotPreview").src = e.target.result;
+      document.getElementById("screenshotPreview").style.display = "block";
+      currentStudent.proof = e.target.result;
+    }
+    reader.readAsDataURL(file);
+  }
+}
+
+function confirmPayment(){
+  if(!currentStudent.proof){
+    alert("Please upload screenshot before confirming.");
+    return;
+  }
+  currentStudent.active = true;
+  currentStudent.epin = "EX" + String(epinCounter++).padStart(4,"0") + "TR2025";
+  currentStudent.link = courseLinks[currentStudent.course];
+  students.push(currentStudent);
+  showPortal(currentStudent);
+}
+
+function showPortal(stu){
+  showSection("portal");
+  document.getElementById("pName").innerText=stu.name;
+  document.getElementById("pEmail").innerText=stu.email;
+  document.getElementById("pCourse").innerText=stu.course;
+  document.getElementById("pEpin").innerText=stu.epin;
+  document.getElementById("pLink").href=stu.link;
+  document.getElementById("pScreenshot").src=stu.proof;
+  startCountdown(3*30*24*60*60); // 3 months
+}
+
+function startCountdown(seconds){
+  let time=seconds;
+  setInterval(()=>{
+    let d=Math.floor(time/86400), h=Math.floor(time%86400/3600), m=Math.floor(time%3600/60), s=time%60;
+    document.getElementById("countdown").innerText=`${d}d ${h}h ${m}m ${s}s`;
+    time--;
+  },1000);
+}
+
+function studentLogin(){
+  const email=document.getElementById("stuEmail").value;
+  const pass=document.getElementById("stuPass").value;
+  const stu = students.find(s=>s.email===email && s.password===pass);
+  if(stu){showPortal(stu);}else{alert("Invalid login");}
+}
+
+function adminLogin(){
+  const email=document.getElementById("adminEmail").value;
+  const pass=document.getElementById("adminPass").value;
+  if(email==="ebubechichukwu8@gmail.com" && pass==="Ebube@123"){showAdminPanel();}
+  else{alert("Invalid admin login");}
+}
+
 function showAdminPanel(){
-  document.getElementById('adminPanel').classList.remove('hidden');
-  const courseFilter=document.getElementById('courseFilter');
-  const admissionFilter=document.getElementById('admissionFilter');
-
-  function renderTable(snapshot){
-    const table=document.getElementById('studentTable');
-    table.innerHTML=`<tr>
-      <th>Name</th><th>Course</th><th>Admission</th><th>Tuition</th><th>ePin</th><th>WhatsApp</th><th>Actions</th>
-    </tr>`;
-    snapshot.forEach(doc=>{
-      const s=doc.data();
-      if((courseFilter.value==='all'||courseFilter.value===s.course) &&
-         (admissionFilter.value==='all'||(admissionFilter.value==='pending'&&!s.admissionGranted)||(admissionFilter.value==='granted'&&s.admissionGranted))){
-        const tr=document.createElement('tr');
-        tr.innerHTML=`<td>${s.fullname}</td>
-          <td>${s.course}</td>
-          <td>${s.admissionGranted?'Granted':'Pending'}</td>
-          <td>${s.tuitionPaid?'Paid':'Pending'}</td>
-          <td>${s.epin}</td>
-          <td><a href="${groupLinks[s.course]}" target="_blank">Link</a></td>
-          <td>
-            <button onclick="grantAdmission('${doc.id}')">Grant</button>
-            <button onclick="markTuitionPaid('${doc.id}')">Mark Paid</button>
-            <button onclick="removeStudent('${doc.id}')">Remove</button>
-          </td>`;
-        table.appendChild(tr);
-      }
-    });
-  }
-
-  db.collection('students').onSnapshot(renderTable);
-  courseFilter.onchange=()=>db.collection('students').get().then(renderTable);
-  admissionFilter.onchange=()=>db.collection('students').get().then(renderTable);
+  showSection("adminPanel");
+  let div=document.getElementById("studentList");
+  div.innerHTML="";
+  students.forEach(s=>{
+    div.innerHTML+=`<div class="student-card">
+    <p><b>Name:</b>${s.name}</p>
+    <p><b>Email:</b>${s.email}</p>
+    <p><b>Course:</b>${s.course}</p>
+    <p><b>Status:</b>${s.status}</p>
+    <p><b>Completed:</b>${s.completed} questions</p>
+    <p><b>Screenshot:</b><br><img src="${s.proof}" class="screenshot"/></p>
+    <button onclick="approve('${s.email}')">Approve</button>
+    <button onclick="removeStudent('${s.email}')">Remove</button>
+    </div>`;
+  });
 }
 
-// --- Admin Actions ---
-window.grantAdmission=async function(id){await db.collection('students').doc(id).update({admissionGranted:true});};
-window.markTuitionPaid=async function(id){await db.collection('students').doc(id).update({tuitionPaid:true});};
-window.removeStudent=async function(id){if(confirm('Remove student?'))await db.collection('students').doc(id).delete();};
+function approve(email){
+  const stu=students.find(s=>s.email===email);
+  if(stu){alert(`${stu.name} approved.`);}
+}
 
-}; // window.onload end
+function removeStudent(email){
+  students = students.filter(s=>s.email!==email);
+  showAdminPanel();
+}
+
+function updatePayLink(){
+  let newLink=document.getElementById("newPay").value;
+  if(newLink){payLink=newLink; document.getElementById("payLink").href=payLink; alert("Updated.");}
+}
+
+function goBack(id){showSection(id);}
 </script>
 </body>
 </html>
